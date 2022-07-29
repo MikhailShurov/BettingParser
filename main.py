@@ -32,15 +32,20 @@ class LineParser:
         time_filtr.click()
         sleep(5)
 
-        self.browser.save_screenshot('poster.jpg')
+        self.browser.save_screenshot('poster.png')
         TelegramClient.TeleframClient().send_screenshots()
 
     def infinity_parsing(self):
         football = self.browser.find_element(By.ID, 'allSport').find_element(By.TAG_NAME, 'div').find_element(By.CLASS_NAME, 'eventsMenuUl').find_element(By.CSS_SELECTOR, 'li.active')
         championats = football.find_elements(By.TAG_NAME, 'li')
         for championat in championats:
+            print('chembumpelya')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", championat)
             championat.find_elements(By.TAG_NAME, 'span')[-1].click()
+            sleep(3)
+            self.browser.save_screenshot('poster.png')
+            TelegramClient.TeleframClient().send_screenshots()
+            sleep(3)
             all_matches = championat.find_element(By.TAG_NAME, 'ul').find_elements(By.TAG_NAME, 'li')
             for li in all_matches:
                 try:
