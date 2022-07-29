@@ -39,7 +39,8 @@ class LineParser:
             self.browser.save_screenshot('poster.png')
             TelegramClient.TeleframClient().send_screenshots()
             return True
-        except:
+        except Exception as ex:
+            print(ex)
             return False
 
     def check_link(self, link):
@@ -65,9 +66,15 @@ class LineParser:
                     s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
 
                     if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
+                        self.windows = self.browser.window_handles
+                        self.browser.switch_to.window(self.windows[-1])
                         return True
                 except:
+                    self.windows = self.browser.window_handles
+                    self.browser.switch_to.window(self.windows[-1])
                     return False
+        self.windows = self.browser.window_handles
+        self.browser.switch_to.window(self.windows[-1])
         return False
 
     def infinity_parsing(self):
@@ -94,5 +101,6 @@ if __name__ == '__main__':
     while True:
         resp = lp.visit_site_and_setup_timefiltr()
         if not resp:
+            print('something went wrong')
             continue
         lp.infinity_parsing()
