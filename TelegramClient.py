@@ -1,4 +1,5 @@
 import telebot
+from time import sleep
 
 
 class TeleframClient:
@@ -10,4 +11,5 @@ class TeleframClient:
 
     def send_screenshots(self):
         with open("poster.png", 'rb') as file:
-            answ = self.bot.send_photo(self.chat_ids[0], file)
+            self.bot.send_photo(self.chat_ids[0], file)
+        sleep(3)
