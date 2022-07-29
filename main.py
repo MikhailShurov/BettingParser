@@ -69,6 +69,7 @@ class LineParser:
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
             return False
+        return False
 
     def infinity_parsing(self):
         try:
