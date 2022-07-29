@@ -47,27 +47,32 @@ class LineParser:
         self.browser.get(link)
 
         sleep(3)
+        print('50')
         buttons = self.browser.find_elements(By.CLASS_NAME, 'markets__item-wrap')
         for item in buttons:
+            print('53')
             if item.find_element(By.TAG_NAME, 'a').text.strip(' ') == 'Интервалы':
                 try:
                     item.find_element(By.TAG_NAME, 'span').click()
                     sleep(2)
+                    print('58')
                     cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
                     self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
                     f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
                     s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
-
+                    print('63')
                     if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
                         self.browser.close()
                         self.windows = self.browser.window_handles
                         self.browser.switch_to.window(self.windows[-1])
                         return True
                 except:
+                    print(70)
                     self.browser.close()
                     self.windows = self.browser.window_handles
                     self.browser.switch_to.window(self.windows[-1])
                     return False
+        print(75)
         self.browser.close()
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
