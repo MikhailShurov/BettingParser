@@ -8,6 +8,8 @@ from time import localtime
 
 import TelegramClient
 
+import schedule
+
 
 class LineParser:
     def __init__(self):
@@ -26,8 +28,12 @@ class LineParser:
         self.tk = TelegramClient.TeleframClient()
 
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+        self.used_links = []
 
-    def visit_site_and_setup_timefiltr(self):       # Полностью работает
+    def clear_used_links(self):
+        self.used_links = []
+
+    def visit_site_and_setup_timefiltr(self):
         try:
             self.browser.get('https://melbet.ru/line/football/')
             sleep(5)
@@ -47,10 +53,8 @@ class LineParser:
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
         self.browser.get(link)
-
         sleep(3)
         try:
-            print('welcome to the try buddy')
             cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
@@ -60,9 +64,7 @@ class LineParser:
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
                 return True
-        except Exception as ex:
-            self.browser.save_screenshot('poster.png')
-            self.tk.send_screenshots()
+        except:
             self.browser.close()
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -74,28 +76,23 @@ class LineParser:
             for item in matches:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
-                print()
-                print(f'{cur_hour}:{cur_min}')
-                print(f'До начала матча {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
-                print(f'{localtime().tm_hour}:{localtime().tm_min}')
-                print()
-                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 50:
-                    print('Верхнее подошло')
+                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                    if self.check_link(link):
+                    if self.check_link(link) and link not in self.used_links:
                         message = f'''Коэффициенты удовлетворяют условию:
 {link}'''
                         self.tk.send_text_message(message)
+                        self.used_links.append(link)
         except Exception as ex:
             print(ex)
 
 
 if __name__ == '__main__':
     lp = LineParser()
+    schedule.every().hour.do(lp.clear_used_links)
     while True:
+        schedule.run_pending()
         resp = lp.visit_site_and_setup_timefiltr()
         if not resp:
-            print('something went wrong')
             continue
         lp.infinity_parsing()
-        print('time  to sleep')

@@ -1,5 +1,4 @@
 import telebot
-from time import sleep
 
 
 class TeleframClient:
