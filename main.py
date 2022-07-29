@@ -84,7 +84,7 @@ class LineParser:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
                 print(f'Ещё ждать {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
-                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
+                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min <= 9:
                     print('Это подошло')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     if self.check_link(link) and link not in self.used_links:
