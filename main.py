@@ -35,6 +35,9 @@ class LineParser:
             select.select_by_value("60")
             time_filtr.click()
             sleep(5)
+            self.tk.send_text_message('Начал парсить')
+            self.browser.save_screenshot('poster.png')
+            TelegramClient.TeleframClient().send_screenshots()
             return True
         except:
             return False
@@ -44,6 +47,11 @@ class LineParser:
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
         self.browser.get(f'https://melbet.ru/{link}')
+
+        self.tk.send_text_message('Матч:')
+        self.browser.save_screenshot('poster.png')
+        TelegramClient.TeleframClient().send_screenshots()
+
         sleep(3)
         buttons = self.browser.find_elements(By.CLASS_NAME, 'markets__item-wrap')
         for item in buttons:
@@ -52,6 +60,7 @@ class LineParser:
                     item.find_element(By.TAG_NAME, 'span').click()
                     sleep(2)
                     cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
+                    self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
                     f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
                     s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
 
@@ -65,16 +74,22 @@ class LineParser:
         matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
         for item in matches:
             time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-            cur_hour, cur_min = int(time[:2]), int(time[3:])
+            cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
             if cur_hour - localtime().tm_hour == 0 and 8 < cur_min - localtime().tm_min < 9:
                 link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                 if self.check_link(link):
                     message = f'''Коэффициенты удовлетворяют условию здесь:
 {self.browser.current_url}'''
                     self.tk.send_text_message(message)
+                else:
+                    message = f'''Не удовлетворяет:
+{self.browser.current_url}'''
+                    self.tk.send_text_message(message)
 
 
 if __name__ == '__main__':
+    a = '9:29'
+    print(a[:a.index(':')], a[a.index(':')+1:])
     lp = LineParser()
     while True:
         resp = lp.visit_site_and_setup_timefiltr()
