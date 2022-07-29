@@ -44,7 +44,7 @@ class LineParser:
         self.browser.execute_script("window.open('');")
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
-        self.browser.get(f'https://melbet.ru/{link}')
+        self.browser.get(link)
 
         self.tk.send_text_message('Матч:')
         self.browser.save_screenshot('poster.png')
