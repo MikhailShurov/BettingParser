@@ -46,7 +46,6 @@ class LineParser:
         self.browser.switch_to.window(self.windows[-1])
         self.browser.get(link)
 
-        self.tk.send_text_message('Матч:')
         self.browser.save_screenshot('poster.png')
         TelegramClient.TeleframClient().send_screenshots()
 
@@ -75,25 +74,24 @@ class LineParser:
         return False
 
     def infinity_parsing(self):
-        matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
-        for item in matches:
-            time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-            cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
-            print('**********')
-            print(f'{cur_hour}:{cur_min}')
-            print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
-            print(f'{localtime().tm_hour}:{localtime().tm_min}')
-            print('**********')
-            if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
-                link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                if self.check_link(link):
-                    message = f'''Коэффициенты удовлетворяют условию:
+        try:
+            matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
+            for item in matches:
+                time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
+                print('**********')
+                print(f'{cur_hour}:{cur_min}')
+                print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
+                print(f'{localtime().tm_hour}:{localtime().tm_min}')
+                print('**********')
+                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
+                    link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                    if self.check_link(link):
+                        message = f'''Коэффициенты удовлетворяют условию:
 {self.browser.current_url}'''
-                    self.tk.send_text_message(message)
-                else:
-                    message = f'''Коэффициенты не удовлетворяют условию:
-{self.browser.current_url}'''
-                    self.tk.send_text_message(message)
+                        self.tk.send_text_message(message)
+        except Exception as ex:
+            print(ex)
 
 
 if __name__ == '__main__':
