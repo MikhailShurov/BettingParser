@@ -1,6 +1,7 @@
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 from time import sleep
 
@@ -26,7 +27,8 @@ class LineParser:
         sleep(10)
         time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
         time_filtr.click()
-        time_filtr.find_elements(By.TAG_NAME, 'option')[1].click()
+        select = Select(time_filtr)
+        select.select_by_value(60)
         sleep(10)
 
         self.browser.save_screenshot('poster.jpg')
