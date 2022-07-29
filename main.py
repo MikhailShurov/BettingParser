@@ -90,7 +90,7 @@ class LineParser:
                     if self.check_link(link) and link not in self.used_links:
                         message = f'''Коэффициенты удовлетворяют условию:
 {link}'''
-                        self.tk.send_text_message(message)
+                        self.tk.send_text_message_for_all(message)
                         self.used_links.append(link)
         except Exception as ex:
             print(88)
