@@ -20,6 +20,8 @@ class LineParser:
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--ignore-certificate-errors')
 
+        self.tk = TelegramClient.TeleframClient()
+
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 
     def visit_site_and_setup_timefiltr(self):       # Полностью работает
@@ -33,26 +35,13 @@ class LineParser:
         sleep(5)
 
         self.browser.save_screenshot('poster.png')
-        TelegramClient.TeleframClient().send_screenshots()
+        self.tk.send_screenshots()
 
     def infinity_parsing(self):
-        football = self.browser.find_element(By.ID, 'allSport').find_element(By.TAG_NAME, 'div').find_element(By.CLASS_NAME, 'eventsMenuUl').find_element(By.CSS_SELECTOR, 'li.active')
-        championats = football.find_elements(By.TAG_NAME, 'li')
-        for championat in championats:
-            print('chembumpelya')
-            self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", championat)
-            championat.find_elements(By.TAG_NAME, 'span')[-1].click()
-            sleep(3)
-            self.browser.save_screenshot('poster.png')
-            TelegramClient.TeleframClient().send_screenshots()
-            sleep(3)
-            all_matches = championat.find_element(By.TAG_NAME, 'ul').find_elements(By.TAG_NAME, 'li')
-            for li in all_matches:
-                try:
-                    current_date = li.find_element(By.CLASS_NAME, 'date').text[-6:-1]
-                    print(current_date)
-                except:
-                    continue
+        matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
+        for item in matches:
+            time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+            self.tk.send_text_message(str(time))
 
 
 if __name__ == '__main__':

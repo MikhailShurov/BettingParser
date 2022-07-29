@@ -12,4 +12,6 @@ class TeleframClient:
     def send_screenshots(self):
         with open("poster.png", 'rb') as file:
             self.bot.send_photo(self.chat_ids[0], file)
-        sleep(3)
+
+    def send_text_message(self, message):
+        self.bot.send_message(self.chat_ids[0], message)
