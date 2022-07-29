@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 from time import sleep
+from time import localtime
 
 import TelegramClient
 
@@ -25,26 +26,58 @@ class LineParser:
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 
     def visit_site_and_setup_timefiltr(self):       # Полностью работает
-        self.browser.get('https://melbet.ru/line/football/')
-        sleep(5)
-        time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
-        time_filtr.click()
-        select = Select(time_filtr)
-        select.select_by_value("60")
-        time_filtr.click()
-        sleep(5)
+        try:
+            self.browser.get('https://melbet.ru/line/football/')
+            sleep(5)
+            time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
+            time_filtr.click()
+            select = Select(time_filtr)
+            select.select_by_value("60")
+            time_filtr.click()
+            sleep(5)
+            return True
+        except:
+            return False
 
-        self.browser.save_screenshot('poster.png')
-        self.tk.send_screenshots()
+    def check_link(self, link):
+        self.browser.execute_script("window.open('');")
+        self.windows = self.browser.window_handles
+        self.browser.switch_to.window(self.windows[-1])
+        self.browser.get(f'https://melbet.ru/{link}')
+        sleep(3)
+        buttons = self.browser.find_elements(By.CLASS_NAME, 'markets__item-wrap')
+        for item in buttons:
+            if item.find_element(By.TAG_NAME, 'a').text.strip(' ') == 'Интервалы':
+                try:
+                    item.find_element(By.TAG_NAME, 'span').click()
+                    sleep(2)
+                    cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
+                    f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
+                    s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
+
+                    if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
+                        return True
+                except:
+                    return False
+        return False
 
     def infinity_parsing(self):
         matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
         for item in matches:
             time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-            self.tk.send_text_message(str(time))
+            cur_hour, cur_min = int(time[:2]), int(time[3:])
+            if cur_hour - localtime().tm_hour == 0 and 8 < cur_min - localtime().tm_min < 9:
+                link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                if self.check_link(link):
+                    message = f'''Коэффициенты удовлетворяют условию здесь:
+{self.browser.current_url}'''
+                    self.tk.send_text_message(message)
 
 
 if __name__ == '__main__':
     lp = LineParser()
-    lp.visit_site_and_setup_timefiltr()
-    lp.infinity_parsing()
+    while True:
+        resp = lp.visit_site_and_setup_timefiltr()
+        if not resp:
+            continue
+        lp.infinity_parsing()
