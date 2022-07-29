@@ -29,6 +29,7 @@ class LineParser:
         time_filtr.click()
         select = Select(time_filtr)
         select.select_by_value("60")
+        time_filtr.click()
         sleep(10)
 
         self.browser.save_screenshot('poster.jpg')
