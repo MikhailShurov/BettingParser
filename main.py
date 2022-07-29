@@ -65,6 +65,11 @@ class LineParser:
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
                 return True
+            else:
+                message = f'''Проверка коэффициентов:
+{link}
+{f_val}/{s_val}'''
+                self.tk.send_text_message(message)
         except:
             self.browser.close()
             self.windows = self.browser.window_handles
