@@ -89,7 +89,7 @@ class LineParser:
                 print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
                 print(f'{localtime().tm_hour}:{localtime().tm_min}')
                 print('**********')
-                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 30:
+                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 55:
                     print('Нормально')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     print('Ссылка:', link)
