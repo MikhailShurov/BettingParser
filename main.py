@@ -81,10 +81,10 @@ class LineParser:
             cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
             print('**********')
             print(f'{cur_hour}:{cur_min}')
-            print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 + localtime().tm_min} минут')
+            print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
             print(f'{localtime().tm_hour}:{localtime().tm_min}')
             print('**********')
-            if 8 < cur_hour*60 + cur_min - localtime().tm_hour*60 + localtime().tm_min < 9:
+            if 8 < cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
                 link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                 if self.check_link(link):
                     message = f'''Коэффициенты удовлетворяют условию:
