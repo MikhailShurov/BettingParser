@@ -27,6 +27,7 @@ class LineParser:
         time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
         time_filtr.click()
         time_filtr.find_elements(By.TAG_NAME, 'option')[1].click()
+        sleep(10)
 
         self.browser.save_screenshot('poster.jpg')
         TelegramClient.TeleframClient().send_screenshots()
