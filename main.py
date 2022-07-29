@@ -49,8 +49,8 @@ class LineParser:
         self.browser.get(link)
 
         sleep(3)
-
         try:
+            print('welcome to the try buddy')
             cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
@@ -63,7 +63,10 @@ class LineParser:
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
                 return True
-        except:
+        except Exception as ex:
+            print(ex)
+            self.browser.save_screenshot('poster.png')
+            self.tk.send_screenshots()
             self.browser.close()
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -75,12 +78,13 @@ class LineParser:
             for item in matches:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
-                print('**********')
+                print()
                 print(f'{cur_hour}:{cur_min}')
                 print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
                 print(f'{localtime().tm_hour}:{localtime().tm_min}')
-                print('**********')
+                print()
                 if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 50:
+                    print('Верхнее подошло')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     if self.check_link(link):
                         message = f'''Коэффициенты удовлетворяют условию:
