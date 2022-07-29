@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 
 from time import sleep
 
+import TelegramClient
+
 
 class LineParser:
     def __init__(self):
@@ -20,7 +22,9 @@ class LineParser:
 
     def visit_site_and_setup_timefiltr(self):
         self.browser.get('https://melbet.ru/line/football/')
-        sleep(5)
+        sleep(10)
+        self.browser.save_screenshot('poster.jpg')
+        TelegramClient.TeleframClient().send_screenshots()
         time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
         time_filtr.click()
         time_filtr.find_elements(By.TAG_NAME, 'option')[1].click()
