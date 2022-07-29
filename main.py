@@ -45,6 +45,7 @@ class LineParser:
             sleep(5)
             return True
         except Exception as ex:
+            print(48)
             print(ex)
             return False
 
@@ -77,7 +78,9 @@ class LineParser:
             for item in matches:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
+                print(f'Ещё ждать {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
                 if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
+                    print('Это подошло')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     if self.check_link(link) and link not in self.used_links:
                         message = f'''Коэффициенты удовлетворяют условию:
@@ -85,6 +88,7 @@ class LineParser:
                         self.tk.send_text_message(message)
                         self.used_links.append(link)
         except Exception as ex:
+            print(88)
             print(ex)
 
 
@@ -97,3 +101,4 @@ if __name__ == '__main__':
         if not resp:
             continue
         lp.infinity_parsing()
+        sleep(5)
