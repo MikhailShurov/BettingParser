@@ -22,26 +22,26 @@ class LineParser:
 
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 
-    def visit_site_and_setup_timefiltr(self):
+    def visit_site_and_setup_timefiltr(self):       # Полностью работает
         self.browser.get('https://melbet.ru/line/football/')
-        sleep(10)
+        sleep(5)
         time_filtr = self.browser.find_element(By.ID, 'timeFiltr')
         time_filtr.click()
         select = Select(time_filtr)
         select.select_by_value("60")
         time_filtr.click()
-        sleep(10)
+        sleep(5)
 
         self.browser.save_screenshot('poster.jpg')
         TelegramClient.TeleframClient().send_screenshots()
 
     def infinity_parsing(self):
-        football = self.browser.find_element(By.CLASS_NAME, 'active').find_element(By.CLASS_NAME, 'sub1')
+        football = self.browser.find_element(By.ID, 'allSport').find_element(By.TAG_NAME, 'div').find_element(By.CLASS_NAME, 'eventsMenuUl').find_element(By.CSS_SELECTOR, 'li.active')
         championats = football.find_elements(By.TAG_NAME, 'li')
         for championat in championats:
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", championat)
             championat.find_elements(By.TAG_NAME, 'span')[-1].click()
-            all_matches = championat.find_element(By.CLASS_NAME, 'sub2').find_elements(By.TAG_NAME, 'li')
+            all_matches = championat.find_element(By.TAG_NAME, 'ul').find_elements(By.TAG_NAME, 'li')
             for li in all_matches:
                 try:
                     current_date = li.find_element(By.CLASS_NAME, 'date').text[-6:-1]
