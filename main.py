@@ -73,9 +73,13 @@ class LineParser:
                     self.browser.switch_to.window(self.windows[-1])
                     return False
         print(75)
+        self.browser.save_screenshot('poster.png')
+        self.tk.send_screenshots()
         self.browser.close()
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
+        self.browser.save_screenshot('poster.png')
+        self.tk.send_screenshots()
         return False
 
     def infinity_parsing(self):
