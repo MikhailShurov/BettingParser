@@ -101,4 +101,5 @@ if __name__ == '__main__':
         if not resp:
             continue
         lp.infinity_parsing()
+        print('**************************************************')
         sleep(5)
