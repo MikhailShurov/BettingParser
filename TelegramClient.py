@@ -3,7 +3,7 @@ import telebot
 
 class TeleframClient:
     def __init__(self):
-        self.token = '5049347663:AAHrg7oBpxXO_w5oeWaptAINCbkCKNojdYo'
+        self.token = '5555283909:AAEx05bAX-qQC-z_ebgDLLPPKN1xVdvrpL4'
         self.bot = telebot.TeleBot(self.token)
 
         self.chat_ids = [1140886668]
