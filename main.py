@@ -55,16 +55,12 @@ class LineParser:
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
             s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
-            self.tk.send_text_message(f'''Проверь коэффициенты
-{self.browser.current_url}
-{f_val }'/'{ s_val}''')
             if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
                 self.browser.close()
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
                 return True
         except Exception as ex:
-            print(ex)
             self.browser.save_screenshot('poster.png')
             self.tk.send_screenshots()
             self.browser.close()
@@ -80,7 +76,7 @@ class LineParser:
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
                 print()
                 print(f'{cur_hour}:{cur_min}')
-                print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
+                print(f'До начала матча {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
                 print(f'{localtime().tm_hour}:{localtime().tm_min}')
                 print()
                 if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 50:
@@ -88,7 +84,7 @@ class LineParser:
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     if self.check_link(link):
                         message = f'''Коэффициенты удовлетворяют условию:
-{self.browser.current_url}'''
+{link}'''
                         self.tk.send_text_message(message)
         except Exception as ex:
             print(ex)
