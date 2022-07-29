@@ -46,9 +46,6 @@ class LineParser:
         self.browser.switch_to.window(self.windows[-1])
         self.browser.get(link)
 
-        self.browser.save_screenshot('poster.png')
-        TelegramClient.TeleframClient().send_screenshots()
-
         sleep(3)
         buttons = self.browser.find_elements(By.CLASS_NAME, 'markets__item-wrap')
         for item in buttons:
@@ -62,13 +59,16 @@ class LineParser:
                     s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
 
                     if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
+                        self.browser.close()
                         self.windows = self.browser.window_handles
                         self.browser.switch_to.window(self.windows[-1])
                         return True
                 except:
+                    self.browser.close()
                     self.windows = self.browser.window_handles
                     self.browser.switch_to.window(self.windows[-1])
                     return False
+        self.browser.close()
         self.windows = self.browser.window_handles
         self.browser.switch_to.window(self.windows[-1])
         return False
@@ -84,8 +84,10 @@ class LineParser:
                 print(f'Ждать ещё {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min} минут')
                 print(f'{localtime().tm_hour}:{localtime().tm_min}')
                 print('**********')
-                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 9:
+                if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min < 30:
+                    print('Нормально')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                    print('Ссылка:', link)
                     if self.check_link(link):
                         message = f'''Коэффициенты удовлетворяют условию:
 {self.browser.current_url}'''
