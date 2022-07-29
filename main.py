@@ -78,18 +78,20 @@ class LineParser:
         return False
 
     def infinity_parsing(self):
+        print('infinity_parsing')
         matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
         for item in matches:
             time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
             cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
+            print(cur_hour, cur_min)
             if cur_hour - localtime().tm_hour == 0 and 8 < cur_min - localtime().tm_min < 9:
                 link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                 if self.check_link(link):
-                    message = f'''Коэффициенты удовлетворяют условию здесь:
+                    message = f'''Коэффициенты удовлетворяют условию:
 {self.browser.current_url}'''
                     self.tk.send_text_message(message)
                 else:
-                    message = f'''Не удовлетворяет:
+                    message = f'''Коэффициенты не удовлетворяют условию:
 {self.browser.current_url}'''
                     self.tk.send_text_message(message)
 
@@ -104,3 +106,4 @@ if __name__ == '__main__':
             print('something went wrong')
             continue
         lp.infinity_parsing()
+        print('time  to sleep')
