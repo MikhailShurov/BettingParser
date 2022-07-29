@@ -35,9 +35,6 @@ class LineParser:
             select.select_by_value("60")
             time_filtr.click()
             sleep(5)
-            self.tk.send_text_message('Начал парсить')
-            self.browser.save_screenshot('poster.png')
-            TelegramClient.TeleframClient().send_screenshots()
             return True
         except Exception as ex:
             print(ex)
@@ -78,12 +75,14 @@ class LineParser:
         return False
 
     def infinity_parsing(self):
-        print('infinity_parsing')
         matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
         for item in matches:
             time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
             cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
+            print('**********')
             print(cur_hour, cur_min)
+            print(localtime().tm_hour, localtime().tm_min)
+            print('**********')
             if cur_hour - localtime().tm_hour == 0 and 8 < cur_min - localtime().tm_min < 9:
                 link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                 if self.check_link(link):
@@ -97,8 +96,6 @@ class LineParser:
 
 
 if __name__ == '__main__':
-    a = '9:29'
-    print(a[:a.index(':')], a[a.index(':')+1:])
     lp = LineParser()
     while True:
         resp = lp.visit_site_and_setup_timefiltr()
