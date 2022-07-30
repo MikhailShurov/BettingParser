@@ -62,7 +62,8 @@ class LineParser:
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
             return league
-        except:
+        except Exception as ex:
+            print(ex, 'ZAAAAAAAAAAAAAAAARRRRRRRRRRRRAAAAAAAAAAAAAAAAAZAA')
             return 'не удалось найти лигу'
 
     def check_link(self, link):
