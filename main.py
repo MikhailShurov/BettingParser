@@ -50,17 +50,20 @@ class LineParser:
             return False
 
     def show_league(self, link):
-        mod_link = link[:link.rfind('/')]
-        self.browser.execute_script("window.open('');")
-        self.windows = self.browser.window_handles
-        self.browser.switch_to.window(self.windows[-1])
-        self.browser.get(mod_link)
-        sleep(3)
-        league = self.browser.find_element(By.ID, 'h1').text
-        self.browser.close()
-        self.windows = self.browser.window_handles
-        self.browser.switch_to.window(self.windows[-1])
-        return league
+        try:
+            mod_link = link[:link.rfind('/')]
+            self.browser.execute_script("window.open('');")
+            self.windows = self.browser.window_handles
+            self.browser.switch_to.window(self.windows[-1])
+            self.browser.get(mod_link)
+            sleep(3)
+            league = self.browser.find_element(By.ID, 'h1').text
+            self.browser.close()
+            self.windows = self.browser.window_handles
+            self.browser.switch_to.window(self.windows[-1])
+            return league
+        except:
+            return 'не удалось найти лигу'
 
     def check_link(self, link):
         self.browser.execute_script("window.open('');")
