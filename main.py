@@ -30,6 +30,7 @@ class LineParser:
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         self.used_links = []
 
+
     def clear_used_links(self):
         self.used_links = []
 
@@ -55,6 +56,14 @@ class LineParser:
         self.browser.switch_to.window(self.windows[-1])
         self.browser.get(link)
         sleep(3)
+        team_left = ''
+        team_right = ''
+        try:
+            names = self.browser.find_element(By.CLASS_NAME, 'tablo').find_element(By.CLASS_NAME, 'teams').find_elements(By.TAG_NAME, 'span')
+            team_left = names[0].text
+            team_right = names[1].text
+        except Exception as ex:
+            print(ex)
         try:
             cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
@@ -64,19 +73,13 @@ class LineParser:
                 self.browser.close()
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
-                return True
-            elif link not in self.used_links:
-                message = f'''Проверка коэффициентов:
-{link}
-{f_val}/{s_val}'''
-                self.tk.send_text_message(message)
-                self.used_links.append(link)
+                return [True, team_left, team_right, f_val, s_val]
         except:
             self.browser.close()
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
-            return False
-        return False
+            return [False]
+        return [False]
 
     def infinity_parsing(self):
         try:
@@ -86,10 +89,12 @@ class LineParser:
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
                 print(f'Ещё ждать {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
                 if 8 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min <= 9:
-                    print('Это подошло')
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                    if self.check_link(link) and link not in self.used_links:
-                        message = f'''Коэффициенты удовлетворяют условию:
+                    response = self.check_link(link)
+                    if response[0] and link not in self.used_links:
+                        message = f'''{response[1]} v/s {response[2]}
+Тотал 0.5 Б на 15 минуту = {response[3]}
+Тотал 0.5 Б на 30 минуту = {response[4]}
 {link}'''
                         self.tk.send_text_message_for_all(message)
                         self.used_links.append(link)
