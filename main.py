@@ -57,9 +57,7 @@ class LineParser:
             self.browser.switch_to.window(self.windows[-1])
             self.browser.get(mod_link)
             sleep(3)
-            print('zashel')
             league = self.browser.find_element(By.ID, 'h1').text
-            print('ne nashel')
             self.browser.close()
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -77,11 +75,9 @@ class LineParser:
         try:
             cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
-            print(80)
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
             s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
             teams = self.browser.find_element(By.ID, 'h1').text
-            print(84)
             if True:        #2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55
                 self.browser.close()
                 self.windows = self.browser.window_handles
@@ -100,15 +96,14 @@ class LineParser:
         # try:
         matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
         for item in matches:
-            time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+            lineNums = item.find_element(By.CLASS_NAME, 'kofsTableLineNums')
+            dateCon = lineNums.find_element(By.CLASS_NAME, 'dateCon')
+            time = dateCon.find_element(By.TAG_NAME, 'span').text
             cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
             print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
             if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
-                print(107)
                 link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                print(109)
                 response = self.check_link(link)
-                print(111)
                 if response[0] and link not in self.used_links:
                     cur_hour = (cur_hour + 2) % 24
                     cur_hour_str = f'{cur_hour}'
