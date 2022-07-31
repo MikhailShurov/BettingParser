@@ -81,7 +81,6 @@ class LineParser:
                 self.browser.close()
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
-                self.tk.send_text_message(f'{link[:-2]}')
                 league = self.show_league(link[:-2])
                 return [True, league, teams]
         except:
@@ -127,7 +126,7 @@ class LineParser:
 
 if __name__ == '__main__':
     lp = LineParser()
-    schedule.every().hour.do(lp.clear_used_links)
+    schedule.every(2).hour.do(lp.clear_used_links)
     while True:
         schedule.run_pending()
         resp = lp.visit_site_and_setup_timefiltr()
@@ -136,3 +135,4 @@ if __name__ == '__main__':
         lp.infinity_parsing()
         print('**************************************************')
         sleep(30)
+    TelegramClient.TeleframClient().send_text_message('Мы в полной заднице, скрипт фулл вылетел')
