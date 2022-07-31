@@ -97,27 +97,27 @@ class LineParser:
         return [False]
 
     def infinity_parsing(self):
-        try:
-            matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
-            for item in matches:
-                time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
-                print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
-                if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
-                    print(107)
-                    link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                    print(109)
-                    response = self.check_link(link)
-                    print(111)
-                    if response[0] and link not in self.used_links:
-                        cur_hour = (cur_hour + 2) % 24
-                        cur_hour_str = f'{cur_hour}'
-                        cur_min_str = f'{cur_min}'
-                        if len(str(cur_hour)) == 1:
-                            cur_hour_str = f'0{cur_hour}'
-                        if len(str(cur_min)) == 1:
-                            cur_min_str = f'0{cur_min}'
-                        message = f'''⚽️Лига: {response[1]}
+        # try:
+        matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
+        for item in matches:
+            time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+            cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
+            print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
+            if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
+                print(107)
+                link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                print(109)
+                response = self.check_link(link)
+                print(111)
+                if response[0] and link not in self.used_links:
+                    cur_hour = (cur_hour + 2) % 24
+                    cur_hour_str = f'{cur_hour}'
+                    cur_min_str = f'{cur_min}'
+                    if len(str(cur_hour)) == 1:
+                        cur_hour_str = f'0{cur_hour}'
+                    if len(str(cur_min)) == 1:
+                        cur_min_str = f'0{cur_min}'
+                    message = f'''⚽️Лига: {response[1]}
 
 🏆Команды: {response[2]}
 
@@ -126,13 +126,13 @@ class LineParser:
 ⏰Начало матча: {cur_hour_str}:{cur_min_str}
 
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                        self.tk.send_text_message(message)  # _for_all
-                        self.used_links.append(link)
-        except Exception as ex:
-            self.browser.save_screenshot('lol.png')
-            self.tk.send_screenshots()
-            print(88)
-            print(ex)
+                    self.tk.send_text_message(message)  # _for_all
+                    self.used_links.append(link)
+        # except Exception as ex:
+        #     self.browser.save_screenshot('lol.png')
+        #     self.tk.send_screenshots()
+        #     print(88)
+        #     print(ex)
 
 
 if __name__ == '__main__':
@@ -145,4 +145,4 @@ if __name__ == '__main__':
             continue
         lp.infinity_parsing()
         print('**************************************************')
-        sleep(5)
+        sleep(30)
