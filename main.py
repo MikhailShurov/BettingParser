@@ -108,6 +108,7 @@ class LineParser:
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     print(109)
                     response = self.check_link(link)
+                    print(111)
                     if response[0] and link not in self.used_links:
                         cur_hour = (cur_hour + 2) % 24
                         cur_hour_str = f'{cur_hour}'
