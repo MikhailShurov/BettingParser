@@ -104,7 +104,9 @@ class LineParser:
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
                 print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
                 if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
+                    print(107)
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                    print(109)
                     response = self.check_link(link)
                     if response[0] and link not in self.used_links:
                         cur_hour = (cur_hour + 2) % 24
