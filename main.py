@@ -45,13 +45,12 @@ class LineParser:
             sleep(5)
             return True
         except Exception as ex:
-            print(48)
             print(ex)
             return False
 
     def show_league(self, link):
         try:
-            mod_link = link[:link.rfind('/')]
+            mod_link = link[:link.rfind('/')+1]
             self.browser.execute_script("window.open('');")
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -63,7 +62,7 @@ class LineParser:
             self.browser.switch_to.window(self.windows[-1])
             return league
         except Exception as ex:
-            print(ex, 'ZAAAAAAAAAAAAAAAARRRRRRRRRRRRAAAAAAAAAAAAAAAAAZAA')
+            print(ex)
             return 'не удалось найти лигу'
 
     def check_link(self, link):
@@ -78,7 +77,7 @@ class LineParser:
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
             s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
             teams = self.browser.find_element(By.ID, 'h1').text
-            if True:        #2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55
+            if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
                 self.browser.close()
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
@@ -93,41 +92,37 @@ class LineParser:
         return [False]
 
     def infinity_parsing(self):
-        # try:
-        matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
-        for item in matches:
-            lineNums = item.find_element(By.CLASS_NAME, 'kofsTableLineNums')
-            dateCon = lineNums.find_element(By.CLASS_NAME, 'dateCon')
-            time = dateCon.find_element(By.TAG_NAME, 'span').text
-            cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
-            print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
-            if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
-                link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                response = self.check_link(link)
-                if response[0] and link not in self.used_links:
-                    cur_hour = (cur_hour + 2) % 24
-                    cur_hour_str = f'{cur_hour}'
-                    cur_min_str = f'{cur_min}'
-                    if len(str(cur_hour)) == 1:
-                        cur_hour_str = f'0{cur_hour}'
-                    if len(str(cur_min)) == 1:
-                        cur_min_str = f'0{cur_min}'
-                    message = f'''⚽️Лига: {response[1]}
-
+        try:
+            group = self.browser.find_element(By.ID, 'line_bets_on_main')
+            matches = group.find_elements(By.CLASS_NAME, 'kofsTableBody')
+            for item in matches:
+                time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
+                print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
+                if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 11:
+                    link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                    response = self.check_link(link)
+                    if response[0] and link not in self.used_links:
+                        cur_hour = (cur_hour + 3) % 24
+                        cur_hour_str = f'{cur_hour}'
+                        cur_min_str = f'{cur_min}'
+                        if len(str(cur_hour)) == 1:
+                            cur_hour_str = f'0{cur_hour}'
+                        if len(str(cur_min)) == 1:
+                            cur_min_str = f'0{cur_min}'
+                        message = f'''⚽️Лига: {response[1]}
+    
 🏆Команды: {response[2]}
-
+    
 ☑️Настоящий я: @ESPANSEO
-
-⏰Начало матча: {cur_hour_str}:{cur_min_str}
-
+    
+⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
+    
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                    self.tk.send_text_message(message)  # _for_all
-                    self.used_links.append(link)
-        # except Exception as ex:
-        #     self.browser.save_screenshot('lol.png')
-        #     self.tk.send_screenshots()
-        #     print(88)
-        #     print(ex)
+                        self.tk.send_text_message_for_all(message)
+                        self.used_links.append(link)
+        except Exception as ex:
+            print(ex)
 
 
 if __name__ == '__main__':
