@@ -78,11 +78,12 @@ class LineParser:
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
             s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
             teams = self.browser.find_element(By.ID, 'h1').text
-            if 2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55:
+            if True:        #2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55
                 self.browser.close()
                 self.windows = self.browser.window_handles
                 self.browser.switch_to.window(self.windows[-1])
-                league = self.show_league(link[:-1])
+                self.tk.send_text_message(f'{link[:-2]}')
+                league = self.show_league(link[:-2])
                 return [True, league, teams]
         except:
             self.browser.close()
@@ -96,22 +97,29 @@ class LineParser:
             matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
             for item in matches:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':')+1:])
-                print(f'Ещё ждать {cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min}')
-                if 9 <= cur_hour*60 + cur_min - localtime().tm_hour*60 - localtime().tm_min <= 11:
+                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
+                print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
+                if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 55:      #11
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     response = self.check_link(link)
                     if response[0] and link not in self.used_links:
+                        cur_hour = (cur_hour + 2) % 24
+                        cur_hour_str = f'{cur_hour}'
+                        cur_min_str = f'{cur_min}'
+                        if len(str(cur_hour)) == 1:
+                            cur_hour_str = f'0{cur_hour}'
+                        if len(str(cur_min)) == 1:
+                            cur_min_str = f'0{cur_min}'
                         message = f'''⚽️Лига: {response[1]}
 
 🏆Команды: {response[2]}
 
 ☑️Настоящий я: @ESPANSEO
 
-⏰Начало матча: {cur_hour}:{cur_min}
+⏰Начало матча: {cur_hour_str}:{cur_min_str}
 
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                        self.tk.send_text_message_for_all(message)
+                        self.tk.send_text_message(message)  # _for_all
                         self.used_links.append(link)
         except Exception as ex:
             print(88)
@@ -119,7 +127,6 @@ class LineParser:
 
 
 if __name__ == '__main__':
-    print(localtime().tm_hour, ':', localtime().tm_min)
     lp = LineParser()
     schedule.every().hour.do(lp.clear_used_links)
     while True:
