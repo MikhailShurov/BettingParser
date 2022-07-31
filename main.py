@@ -135,4 +135,4 @@ if __name__ == '__main__':
         lp.infinity_parsing()
         print('**************************************************')
         sleep(30)
-    TelegramClient.TeleframClient().send_text_message('Мы в полной заднице, скрипт фулл вылетел')
+    TelegramClient.TeleframClient().send_text_message('Cкрипт фулл вылетел')
