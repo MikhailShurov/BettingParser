@@ -57,7 +57,9 @@ class LineParser:
             self.browser.switch_to.window(self.windows[-1])
             self.browser.get(mod_link)
             sleep(3)
+            print('zashel')
             league = self.browser.find_element(By.ID, 'h1').text
+            print('ne nashel')
             self.browser.close()
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -75,9 +77,11 @@ class LineParser:
         try:
             cells = self.browser.find_element(By.ID, 'group_309').find_element(By.ID, 's_309').find_elements(By.ID, 'z_1197')
             self.browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight;", cells[0])
+            print(80)
             f_val = cells[0].find_elements(By.TAG_NAME, 'span')[-1].text
             s_val = cells[1].find_elements(By.TAG_NAME, 'span')[-1].text
             teams = self.browser.find_element(By.ID, 'h1').text
+            print(84)
             if True:        #2.0 < float(f_val) < 2.6 and 1.4 < float(s_val) < 1.55
                 self.browser.close()
                 self.windows = self.browser.window_handles
