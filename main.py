@@ -129,6 +129,8 @@ class LineParser:
                         self.tk.send_text_message(message)  # _for_all
                         self.used_links.append(link)
         except Exception as ex:
+            self.browser.save_screenshot('lol.png')
+            self.tk.send_screenshots()
             print(88)
             print(ex)
 

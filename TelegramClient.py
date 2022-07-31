@@ -9,7 +9,7 @@ class TeleframClient:
         self.chat_ids = [1140886668, 958571682]
 
     def send_screenshots(self):
-        with open("poster.png", 'rb') as file:
+        with open("lol.png", 'rb') as file:
             self.bot.send_photo(self.chat_ids[0], file)
 
     def send_text_message(self, message):
