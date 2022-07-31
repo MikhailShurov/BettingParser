@@ -126,7 +126,7 @@ class LineParser:
 
 if __name__ == '__main__':
     lp = LineParser()
-    schedule.every(2).hour.do(lp.clear_used_links)
+    schedule.every(2).hours.do(lp.clear_used_links)
     while True:
         schedule.run_pending()
         resp = lp.visit_site_and_setup_timefiltr()
