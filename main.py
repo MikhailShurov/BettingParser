@@ -2,6 +2,8 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 from time import sleep
 from time import localtime
@@ -10,22 +12,24 @@ import TelegramClient
 
 import schedule
 
+from threading import *
+
 
 class LineParser:
     def __init__(self):
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"
 
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument(f'user-agent={user_agent}')
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--ignore-certificate-errors')
+        self.chrome_options = webdriver.ChromeOptions()
+        self.chrome_options.add_argument(f'user-agent={user_agent}')
+        self.chrome_options.add_argument('--headless')
+        self.chrome_options.add_argument('--disable-gpu')
+        self.chrome_options.add_argument('--no-sandbox')
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
+        self.chrome_options.add_argument('--ignore-certificate-errors')
 
         self.tk = TelegramClient.TeleframClient()
 
-        self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+        self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
         self.used_links = []
 
     def clear_used_links(self):
@@ -48,7 +52,7 @@ class LineParser:
 
     def show_league(self, link):
         try:
-            mod_link = link[:link.rfind('/')+1]
+            mod_link = link[:link.rfind('/') + 1]
             self.browser.execute_script("window.open('');")
             self.windows = self.browser.window_handles
             self.browser.switch_to.window(self.windows[-1])
@@ -116,10 +120,40 @@ class LineParser:
 ⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
     
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                        self.tk.send_text_message_for_all(message)
+                        msg = self.tk.send_text_message_for_all(message)
                         self.used_links.append(link)
+                        t1 = Thread(target=self.check_stats, args=(link, cur_min, msg))
+                        t1.start()
         except Exception as ex:
             print(ex)
+
+    def check_stats(self, link, start_at, message):
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
+
+        mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
+        self.driver.get(mod_link)
+
+        WebDriverWait(self.browser, 60).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+        self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
+
+        checked = False
+        while True:
+            if localtime().tm_min == start_at:
+                checked = True
+            if localtime().tm_min != start_at and not checked:
+                sleep(5)
+                continue
+            elif localtime().tm_min == (start_at + 30) % 60:
+                break
+            else:
+                try:
+                    scores = self.driver.find_elements(By.CLASS_NAME, 'teamScore')
+                    if int(scores[0].text) + int(scores[1].text) != 0:
+                        goal_time = self.driver.find_element(By.CLASS_NAME, 'time').text
+                        self.tk.edit_text_message_for_all(message, goal_time)
+                        return
+                except:
+                    continue
 
 
 if __name__ == '__main__':
