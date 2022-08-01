@@ -136,7 +136,7 @@ class LineParser:
         while True:
             if localtime().tm_min == start_at+1 and not checked:
                 self.driver.get(mod_link)
-                WebDriverWait(self.browser, 60).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+                WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
                 self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
                 checked = True
 
