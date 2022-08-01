@@ -12,6 +12,10 @@ class TeleframClient:
         with open("lol.png", 'rb') as file:
             self.bot.send_photo(self.chat_ids[0], file)
 
+    def send_error(self):
+        with open("error.html", 'rb') as file:
+            self.bot.send_document(self.chat_ids[0], file)
+
     def send_text_message(self, message):
         self.bot.send_message(self.chat_ids[0], message)
 

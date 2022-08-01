@@ -14,6 +14,12 @@ import schedule
 
 from threading import *
 
+from rich.console import Console
+from rich.traceback import install
+
+install()
+console = Console(record=True)
+
 
 class LineParser:
     def __init__(self):
@@ -157,14 +163,18 @@ class LineParser:
 
 
 if __name__ == '__main__':
-    lp = LineParser()
-    schedule.every(2).hours.do(lp.clear_used_links)
-    while True:
-        schedule.run_pending()
-        resp = lp.visit_site_and_setup_timefiltr()
-        if not resp:
-            continue
-        lp.infinity_parsing()
-        print('**************************************************')
-        sleep(30)
-    TelegramClient.TeleframClient().send_text_message('Cкрипт фулл вылетел')
+    try:
+        lp = LineParser()
+        schedule.every(2).hours.do(lp.clear_used_links)
+        while True:
+            schedule.run_pending()
+            resp = lp.visit_site_and_setup_timefiltr()
+            if not resp:
+                continue
+            lp.infinity_parsing()
+            print('**************************************************')
+            sleep(30)
+        TelegramClient.TeleframClient().send_text_message('Cкрипт фулл вылетел')
+    except:
+        console.save_html("error.html")
+        TelegramClient.TeleframClient().send_error()
