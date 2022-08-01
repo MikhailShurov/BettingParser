@@ -100,8 +100,12 @@ class LineParser:
 
     def infinity_parsing(self):
         try:
-            group = self.browser.find_element(By.ID, 'line_bets_on_main')
-            matches = group.find_elements(By.CLASS_NAME, 'kofsTableBody')
+            matches = []
+            try:
+                group = self.browser.find_element(By.ID, 'line_bets_on_main')
+                matches = group.find_elements(By.CLASS_NAME, 'kofsTableBody')
+            except:
+                matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
             for item in matches:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
