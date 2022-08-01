@@ -131,15 +131,15 @@ class LineParser:
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
 
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
-        self.driver.get(mod_link)
-
-        WebDriverWait(self.browser, 60).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
-        self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
 
         checked = False
         while True:
-            if localtime().tm_min == start_at:
+            if localtime().tm_min == start_at+1 and not checked:
+                self.driver.get(mod_link)
+                WebDriverWait(self.browser, 60).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+                self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
                 checked = True
+
             if localtime().tm_min != start_at and not checked:
                 sleep(5)
                 continue
