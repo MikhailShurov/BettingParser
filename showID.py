@@ -8,16 +8,23 @@
 #     print(message.chat.id)
 #
 # bot.infinity_polling()
-import asyncio
+
+
+from threading import *
 from time import sleep
 
 
-async def print_num(num):
-    while True:
-        print(num)
-        await asyncio.sleep(2)
+def mentor(word):
+    for i in range(30):
+        print(word, i)
+        sleep(1)
 
-async def main():
-    await asyncio.run(print_num(5))
-    await asyncio.run(print_num(6))
-asyncio.run(main())
+
+def print_num(word):
+    t1 = Thread(target=mentor, args=(word,))
+    t1.start()
+
+
+while True:
+    print_num("bumbum")
+    sleep(3)
