@@ -142,28 +142,46 @@ class LineParser:
 
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
 
+        self.tk.send_text_message(f'''Трекаю матч, его данные:
+
+link = {mod_link}
+Начало (минуты): {start_at}
+message = {message.text}''')
+
         checked = False
         while True:
-            if localtime().tm_min == start_at+1 and not checked:
-                self.driver.get(mod_link)
-                WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
-                self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
-                checked = True
+            try:
+                if int(localtime().tm_min) == int(start_at) and not checked:
+                    self.driver.get(mod_link)
+                    WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+                    self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
+                    checked = True
 
-            if localtime().tm_min != start_at and not checked:
-                sleep(5)
-                continue
-            elif localtime().tm_min == (start_at + 30) % 60:
-                break
-            else:
-                try:
-                    scores = self.driver.find_elements(By.CLASS_NAME, 'teamScore')
-                    if int(scores[0].text) + int(scores[1].text) != 0:
-                        goal_time = self.driver.find_element(By.CLASS_NAME, 'time').text
-                        self.tk.edit_text_message_for_all(message, goal_time)
-                        return
-                except:
+                if localtime().tm_min != start_at and not checked:
+                    sleep(5)
                     continue
+                elif localtime().tm_min == (start_at + 30) % 60:
+                    self.tk.send_text_message(f'''Закаончил трекать этот матч, выхожу
+
+{mod_link}''')
+                    break
+                else:
+                    try:
+                        self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
+                        scores = self.driver.find_elements(By.CLASS_NAME, 'teamScore')
+                        if int(scores[0].text) + int(scores[1].text) != 0:
+                            goal_time = self.driver.find_element(By.CLASS_NAME, 'time').text
+                            self.tk.edit_text_message_for_all(message, goal_time)
+                            return
+                    except:
+                        self.tk.send_text_message('Не удалось найти таблицу со счетом')
+                        console.save_html("error.html")
+                        self.tk.send_error()
+                        continue
+            except:
+                console.save_html("error.html")
+                self.tk.send_error()
+                continue
 
 
 if __name__ == '__main__':
