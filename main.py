@@ -132,7 +132,7 @@ class LineParser:
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
                         msg = self.tk.send_text_message_for_all(message)
                         self.used_links.append(link)
-                        t1 = Thread(target=self.check_stats, args=(link, cur_min, msg))
+                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, msg))
                         t1.start()
         except Exception as ex:
             print(ex)
@@ -153,8 +153,11 @@ message = {message.text}''')
             try:
                 if int(localtime().tm_min) == int(start_at) and not checked:
                     self.driver.get(mod_link)
+                    print(156)
                     WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+                    print(158)
                     self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
+                    print(160)
                     checked = True
 
                 if localtime().tm_min != start_at and not checked:
@@ -167,7 +170,9 @@ message = {message.text}''')
                     break
                 else:
                     try:
+                        print(173)
                         self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
+                        print(175)
                         scores = self.driver.find_elements(By.CLASS_NAME, 'teamScore')
                         if int(scores[0].text) + int(scores[1].text) != 0:
                             goal_time = self.driver.find_element(By.CLASS_NAME, 'time').text
