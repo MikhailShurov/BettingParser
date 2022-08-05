@@ -167,12 +167,14 @@ message = {message.text}''')
                         self.driver.save_screenshot("lol.png")
                         self.tk.send_screenshots()
                         try:
+                            print('try')
                             spans = self.driver.find_elements(By.TAG_NAME, 'span')
                             for span in spans:
                                 if span.text == 'Табло':
                                     span.click()
                                     break
                         except:
+                            print('except')
                             self.driver.find_element(By.CSS_SELECTOR, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
                         self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
                         print(178)
