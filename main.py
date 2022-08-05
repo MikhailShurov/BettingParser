@@ -135,6 +135,8 @@ class LineParser:
             print(ex)
 
     def check_stats(self, link, start_at, message):
+        self.chrome_options.add_argument("--start-maximized")
+        self.chrome_options.add_argument("--window-size=1920,1080")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
 
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
@@ -170,12 +172,16 @@ message = {message.text}''')
                             print('try')
                             spans = self.driver.find_elements(By.TAG_NAME, 'span')
                             for span in spans:
-                                if span.text == 'Табло':
-                                    span.click()
-                                    break
+                                try:
+                                    if span.text == 'Табло':
+                                        self.driver.execute_script('arguments[0].click()', span)
+                                        break
+                                except:
+                                    continue
                         except:
                             print('except')
-                            self.driver.find_element(By.CSS_SELECTOR, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
+                            span = self.driver.find_element(By.CSS_SELECTOR, 'tabloNavUl').find_element(By.TAG_NAME, 'span')
+                            self.driver.execute_script('arguments[0].click()', span)
                         self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
                         print(178)
                         scores = self.driver.find_elements(By.CSS_SELECTOR, '.teamScore')
