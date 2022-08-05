@@ -152,7 +152,7 @@ message = {message.text}''')
         while True:
             print('В потоке')
             try:
-                if int(localtime().tm_min) >= int(start_at) and not checked:
+                if int(localtime().tm_min) >= int(start_at)+2 and not checked:
                     self.driver.get(mod_link)
                     print(156)
                     WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
@@ -161,23 +161,25 @@ message = {message.text}''')
                     print(160)
                     checked = True
 
-                if localtime().tm_min != start_at and not checked:
+                elif localtime().tm_min != start_at and not checked:
                     print('Жду-с')
                     sleep(5)
                     continue
-                elif localtime().tm_min == (start_at + 30) % 60:
+                elif localtime().tm_min == (start_at + 30) % 60 and checked:
                     self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
 
 {mod_link}''')
                     break
                 else:
                     try:
-                        print(173)
+                        WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
+                        self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
                         self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
-                        print(175)
-                        scores = self.driver.find_elements(By.CLASS_NAME, 'teamScore')
+                        print(178)
+                        scores = self.driver.find_elements(By.CSS_SELECTOR, '.teamScore')
                         if int(scores[0].text) + int(scores[1].text) != 0:
-                            goal_time = self.driver.find_element(By.CLASS_NAME, 'time').text
+                            goal_time = f'{(localtime().tm_hour+3)%24}:{localtime().tm_min}'
+                            print('Сейчас отредачу сообщение')
                             self.tk.edit_text_message_for_all(message, goal_time)
                             return
                     except:
