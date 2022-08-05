@@ -128,24 +128,24 @@ class LineParser:
     
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
                         msg = self.tk.send_text_message_for_all(message)
+                        msg.append(message)
                         self.used_links.append(link)
-                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, msg))
+                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, msg, message))
                         t1.start()
         except Exception as ex:
             print(ex)
 
-    def check_stats(self, link, start_at, message):
+    def check_stats(self, link, start_at, ids, message_text):
         self.chrome_options.add_argument("--start-maximized")
         self.chrome_options.add_argument("--window-size=1920,1080")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
 
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
 
-        self.tk.send_text_message(f'''Трекаю матч, его данные:
+        self.tk.send_text_message(f'''Трекаю матч, его url: {mod_link}''')
 
-link = {mod_link}
-Начало (минуты): {start_at}
-message = {message.text}''')
+        self.driver.get(mod_link)
+        sleep(5)
 
         checked = False
         while True:
@@ -159,39 +159,20 @@ message = {message.text}''')
                     self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
 
 {mod_link}''')
-                    break
+                    print('Вышло время...')
+                    return
                 elif int(localtime().tm_min) == int(start_at) or checked:
                     checked = True
                     try:
-                        print('POSHLA ZHARA')
-                        self.driver.get(mod_link)
-                        sleep(5)
-                        self.driver.save_screenshot("lol.png")
-                        self.tk.send_screenshots()
-                        try:
-                            print('try')
-                            spans = self.driver.find_elements(By.TAG_NAME, 'span')
-                            for span in spans:
-                                try:
-                                    if span.text == 'Табло':
-                                        self.driver.execute_script('arguments[0].click()', span)
-                                        break
-                                except:
-                                    continue
-                        except:
-                            print('except')
-                            span = self.driver.find_element(By.CSS_SELECTOR, 'tabloNavUl').find_element(By.TAG_NAME, 'span')
-                            self.driver.execute_script('arguments[0].click()', span)
-                        self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
-                        print(178)
-                        scores = self.driver.find_elements(By.CSS_SELECTOR, '.teamScore')
-                        if int(scores[0].text) + int(scores[1].text) != 0:
-                            goal_time = f'{(localtime().tm_hour+3)%24}:{localtime().tm_min}'
-                            print('Сейчас отредачу сообщение')
-                            self.tk.edit_text_message_for_all(message, goal_time)
+                        left_score = int(self.driver.find_element(By.ID, 'scoreboard__score_left').text)
+                        right_score = int(self.driver.find_element(By.ID, 'scoreboard__score_right').text)
+                        if left_score + right_score != 0:
+                            self.tk.edit_text_message_for_all(ids, localtime().tm_min, message_text)
+                            self.tk.send_text_message('Edited')
+                            print('Завершаю поток...')
                             return
                     except:
-                        self.tk.send_text_message('Не удалось найти таблицу со счетом')
+                        print('Hmmm, something went wrong...')
                         continue
             except:
                 self.tk.send_text_message('Главный except')
