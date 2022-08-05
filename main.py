@@ -150,8 +150,9 @@ message = {message.text}''')
 
         checked = False
         while True:
+            print('В потоке')
             try:
-                if int(localtime().tm_min) == int(start_at) and not checked:
+                if int(localtime().tm_min) >= int(start_at) and not checked:
                     self.driver.get(mod_link)
                     print(156)
                     WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
@@ -161,6 +162,7 @@ message = {message.text}''')
                     checked = True
 
                 if localtime().tm_min != start_at and not checked:
+                    print('Жду-с')
                     sleep(5)
                     continue
                 elif localtime().tm_min == (start_at + 30) % 60:
@@ -180,12 +182,9 @@ message = {message.text}''')
                             return
                     except:
                         self.tk.send_text_message('Не удалось найти таблицу со счетом')
-                        console.save_html("error.html")
-                        self.tk.send_error()
                         continue
             except:
-                console.save_html("error.html")
-                self.tk.send_error()
+                self.tk.send_text_message('Главный except')
                 continue
 
 

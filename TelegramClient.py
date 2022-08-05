@@ -23,9 +23,6 @@ class TeleframClient:
         ret = None
         for c_id in self.chat_ids:
             ret = self.bot.send_message(c_id, message)
-            print('############################################')
-            print(ret)
-            print('############################################')
         return ret
 
     def edit_text_message_for_all(self, message, goal_time):
