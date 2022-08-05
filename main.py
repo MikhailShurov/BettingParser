@@ -2,8 +2,6 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 
 from time import sleep
 from time import localtime
@@ -100,7 +98,6 @@ class LineParser:
 
     def infinity_parsing(self):
         try:
-            matches = []
             try:
                 group = self.browser.find_element(By.ID, 'line_bets_on_main')
                 matches = group.find_elements(By.CLASS_NAME, 'kofsTableBody')
@@ -152,16 +149,7 @@ message = {message.text}''')
         while True:
             print('В потоке')
             try:
-                if int(localtime().tm_min) >= int(start_at)+2 and not checked:
-                    self.driver.get(mod_link)
-                    print(156)
-                    WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
-                    print(158)
-                    self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
-                    print(160)
-                    checked = True
-
-                elif localtime().tm_min != start_at and not checked:
+                if localtime().tm_min != start_at and not checked:
                     print('Жду-с')
                     sleep(5)
                     continue
@@ -170,10 +158,22 @@ message = {message.text}''')
 
 {mod_link}''')
                     break
-                else:
+                elif int(localtime().tm_min) == int(start_at) or checked:
+                    checked = True
                     try:
-                        WebDriverWait(self.browser, 180).until(ec.presence_of_element_located((By.CLASS_NAME, "tabloNavUl")))
-                        self.driver.find_element(By.CLASS_NAME, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
+                        print('POSHLA ZHARA')
+                        self.driver.get(mod_link)
+                        sleep(5)
+                        self.driver.save_screenshot("lol.png")
+                        self.tk.send_screenshots()
+                        try:
+                            spans = self.driver.find_elements(By.TAG_NAME, 'span')
+                            for span in spans:
+                                if span.text == 'Табло':
+                                    span.click()
+                                    break
+                        except:
+                            self.driver.find_element(By.CSS_SELECTOR, 'tabloNavUl').find_element(By.TAG_NAME, 'span').click()
                         self.tk.send_text_message('Пытаюсь найти таблицу со счетом')
                         print(178)
                         scores = self.driver.find_elements(By.CSS_SELECTOR, '.teamScore')
