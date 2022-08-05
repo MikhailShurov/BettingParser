@@ -164,7 +164,7 @@ message = {message.text}''')
                     sleep(5)
                     continue
                 elif localtime().tm_min == (start_at + 30) % 60:
-                    self.tk.send_text_message(f'''Закаончил трекать этот матч, выхожу
+                    self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
 
 {mod_link}''')
                     break
