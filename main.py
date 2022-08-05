@@ -107,7 +107,7 @@ class LineParser:
                 time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
                 cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
                 print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
-                if 9 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 11:
+                if 8 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 11:
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     response = self.check_link(link)
                     if response[0] and link not in self.used_links:
@@ -133,6 +133,7 @@ class LineParser:
                         t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, msg, message))
                         t1.start()
         except Exception as ex:
+            # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
 
     def check_stats(self, link, start_at, ids, message_text):
