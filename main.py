@@ -3,17 +3,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
-from bs4 import BeautifulSoup
-import requests
-
 from time import sleep
 from time import localtime
 
 import TelegramClient
 
 import schedule
-
-from threading import *
 
 from rich.console import Console
 from rich.traceback import install
@@ -137,74 +132,16 @@ class LineParser:
                             msg = self.tk.send_text_message_for_all(message)
                             msg.append(message)
                             self.used_links.append(link)
-                            t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, cur_hour, msg, message))
-                            t1.start()
                 except:
                     continue
         except Exception as ex:
             # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
 
-    def check_stats(self, link, start_min, start_hour, ids, message_text):
-        mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
-
-        self.tk.send_text_message(f'''Трекаю матч, его url: {mod_link}''')
-        sleep(5)
-
-        while True:
-            print('В потоке')
-            try:
-                if start_hour * 60 + start_min - localtime().tm_hour * 60 - localtime().tm_min > 0:
-                    print('Жду-с')
-                    sleep(5)
-                    continue
-                elif localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min >= 30:
-                    self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
-
-{mod_link}''')
-                    print('Вышло время...')
-                    return
-                elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
-                    sleep(5)
-                    response = requests.get(mod_link, headers=self.headers)
-                    with open('error.html', 'w') as file:
-                        file.write(response.text)
-                    self.tk.send_error()
-                    soup = BeautifulSoup(response.text, 'lxml')
-                    try:
-                        timer = soup.find("div", {"id": "scoreboard__time"}).text
-                        left_score = int(soup.find("div", {"id": "scoreboard__score_left"}).text)
-                        right_score = int(soup.find("div", {"id": "scoreboard__score_right"}).text)
-                    except:
-                        scores = soup.find_all("div", {"class": "teamScore"})
-                        left_score = int(scores[0].text)
-                        right_score = int(scores[1].text)
-                        timer = soup.find("div", {"class": "time"}).text
-                    msg = f'''{left_score}, {right_score}, {timer}'''
-                    self.tk.send_text_message(msg)
-                    print(left_score, right_score, timer)
-                    if left_score + right_score != 0:
-                        self.tk.edit_text_message_for_all(ids, timer, message_text)
-                        self.tk.send_text_message('Edited')
-                        print('Завершаю поток...')
-                        return
-                    else:
-                        print('Пока по нулям')
-            except:
-                self.tk.send_text_message('Главный except')
-                continue
-
 
 if __name__ == '__main__':
     try:
         lp = LineParser()
-        lp.browser.get('https://melbet.ru/live/football/12821-france-ligue-1/138946919-clermont-foot-paris-saint-germain/')
-        sleep(10)
-        txt = lp.browser.find_element(By.ID, 'scoreboard__score_right').text
-        print(txt)
-        TelegramClient.TeleframClient().send_text_message(txt)
-        print('gotcha')
-        sleep(5000)
         schedule.every(2).hours.do(lp.clear_used_links)
         while True:
             schedule.run_pending()
