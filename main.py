@@ -3,6 +3,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
+from bs4 import BeautifulSoup
+import requests
+
 from time import sleep
 from time import localtime
 
@@ -137,15 +140,13 @@ class LineParser:
             print(ex)
 
     def check_stats(self, link, start_min, start_hour, ids, message_text):
-        self.chrome_options.add_argument("--start-maximized")
-        self.chrome_options.add_argument("--window-size=1920,1080")
-        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
-
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
 
-        self.tk.send_text_message(f'''Трекаю матч, его url: {mod_link}''')
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+        }
 
-        self.driver.get(mod_link)
+        self.tk.send_text_message(f'''Трекаю матч, его url: {mod_link}''')
         sleep(5)
 
         while True:
@@ -162,19 +163,21 @@ class LineParser:
                     print('Вышло время...')
                     return
                 elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
-                    sleep(10)
-                    self.driver.save_screenshot('lol.png')
-                    self.tk.send_screenshots()
+                    sleep(5)
+                    response = requests.get(mod_link, headers=headers)
+                    soup = BeautifulSoup(response.text, 'lxml')
                     try:
-                        print('Пошла жара')
+                        self.tk.send_text_message('Пошла жара')
+                        timer = ''
                         try:
-                            print(self.driver.find_element(By.ID, 'scoreboard__time').text)
+                            timer = soup.find("div", {"id": "scoreboard__time"}).text
+                            print(timer)
                         except:
                             print('Не вижу время')
-                        left_score = int(self.driver.find_element(By.ID, 'scoreboard__score_left').text)
-                        right_score = int(self.driver.find_element(By.ID, 'scoreboard__score_right').text)
+                        left_score = int(soup.find("div", {"id": "scoreboard__score_left"}).text)
+                        right_score = int(soup.find("div", {"id": "scoreboard__score_right"}).text)
                         if left_score + right_score != 0:
-                            self.tk.edit_text_message_for_all(ids, localtime().tm_min, message_text)
+                            self.tk.edit_text_message_for_all(ids, timer, message_text)
                             self.tk.send_text_message('Edited')
                             print('Завершаю поток...')
                             return
