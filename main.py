@@ -200,9 +200,9 @@ if __name__ == '__main__':
         lp = LineParser()
         lp.browser.get('https://melbet.ru/live/football/12821-france-ligue-1/138946919-clermont-foot-paris-saint-germain/')
         sleep(10)
-        with open("error.html", "w") as file:
-            file.write(lp.browser.page_source)
-        TelegramClient.TeleframClient().send_error()
+        txt = lp.browser.find_element(By.ID, 'scoreboard__score_right').text
+        print(txt)
+        TelegramClient.TeleframClient().send_text_message(txt)
         print('gotcha')
         sleep(5000)
         schedule.every(2).hours.do(lp.clear_used_links)
