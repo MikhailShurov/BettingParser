@@ -111,33 +111,36 @@ class LineParser:
             except:
                 matches = self.browser.find_elements(By.CLASS_NAME, 'kofsTableBody')
             for item in matches:
-                time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
-                cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
-                print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
-                if 8 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 11:
-                    link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
-                    response = self.check_link(link)
-                    if response[0] and link not in self.used_links:
-                        cur_hour_str = f'{(cur_hour + 3) % 24}'
-                        cur_min_str = f'{cur_min}'
-                        if len(str(cur_hour)) == 1:
-                            cur_hour_str = f'0{cur_hour}'
-                        if len(str(cur_min)) == 1:
-                            cur_min_str = f'0{cur_min}'
-                        message = f'''⚽️Лига: {response[1]}
-    
-🏆Команды: {response[2]}
-    
-☑️Настоящий я: @ESPANSEO
-    
-⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
-    
-💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                        msg = self.tk.send_text_message_for_all(message)
-                        msg.append(message)
-                        self.used_links.append(link)
-                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, cur_hour, msg, message))
-                        t1.start()
+                try:
+                    time = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.CLASS_NAME, 'dateCon').find_element(By.TAG_NAME, 'span').text
+                    cur_hour, cur_min = int(time[:time.index(':')]), int(time[time.index(':') + 1:])
+                    print(f'Ещё ждать {cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min}')
+                    if 8 <= cur_hour * 60 + cur_min - localtime().tm_hour * 60 - localtime().tm_min <= 11:
+                        link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
+                        response = self.check_link(link)
+                        if response[0] and link not in self.used_links:
+                            cur_hour_str = f'{(cur_hour + 3) % 24}'
+                            cur_min_str = f'{cur_min}'
+                            if len(str(cur_hour)) == 1:
+                                cur_hour_str = f'0{cur_hour}'
+                            if len(str(cur_min)) == 1:
+                                cur_min_str = f'0{cur_min}'
+                            message = f'''⚽️Лига: {response[1]}
+        
+    🏆Команды: {response[2]}
+        
+    ☑️Настоящий я: @ESPANSEO
+        
+    ⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
+        
+    💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
+                            msg = self.tk.send_text_message_for_all(message)
+                            msg.append(message)
+                            self.used_links.append(link)
+                            t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, cur_hour, msg, message))
+                            t1.start()
+                except:
+                    continue
         except Exception as ex:
             # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
