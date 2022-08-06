@@ -163,8 +163,16 @@ class LineParser:
                     print('Вышло время...')
                     return
                 elif int(localtime().tm_min) == int(start_at) or checked:
+                    sleep(10)
+                    self.driver.save_screenshot('lol.png')
+                    self.tk.send_screenshots()
                     checked = True
                     try:
+                        print('Пошла жара')
+                        try:
+                            print(self.driver.find_element(By.ID, 'scoreboard__time').text)
+                        except:
+                            print('Не вижу время')
                         left_score = int(self.driver.find_element(By.ID, 'scoreboard__score_left').text)
                         right_score = int(self.driver.find_element(By.ID, 'scoreboard__score_right').text)
                         if left_score + right_score != 0:
@@ -172,6 +180,8 @@ class LineParser:
                             self.tk.send_text_message('Edited')
                             print('Завершаю поток...')
                             return
+                        else:
+                            print('Пока по нулям')
                     except:
                         print('Hmmm, something went wrong...')
                         continue
