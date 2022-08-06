@@ -148,7 +148,6 @@ class LineParser:
         self.driver.get(mod_link)
         sleep(5)
 
-        checked = False
         while True:
             print('В потоке')
             try:
