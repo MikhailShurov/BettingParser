@@ -203,7 +203,7 @@ if __name__ == '__main__':
                 continue
             lp.infinity_parsing()
             print('**************************************************')
-            sleep(7)
+            sleep(6)
     except:
         console.save_html("error.html")
         TelegramClient.TeleframClient().send_error()
