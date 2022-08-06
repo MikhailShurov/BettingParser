@@ -122,13 +122,13 @@ class LineParser:
                                 cur_min_str = f'0{cur_min}'
                             message = f'''⚽️Лига: {response[1]}
         
-    🏆Команды: {response[2]}
+🏆Команды: {response[2]}
         
-    ☑️Настоящий я: @ESPANSEO
+☑️Настоящий я: @ESPANSEO
         
-    ⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
+⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
         
-    💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
+💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
                             msg = self.tk.send_text_message_for_all(message)
                             msg.append(message)
                             self.used_links.append(link)
