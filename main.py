@@ -198,6 +198,13 @@ class LineParser:
 if __name__ == '__main__':
     try:
         lp = LineParser()
+        lp.browser.get('https://melbet.ru/live/football/12821-france-ligue-1/138946919-clermont-foot-paris-saint-germain/')
+        sleep(10)
+        with open("error.html", "w") as file:
+            file.write(lp.browser.page_source)
+        TelegramClient.TeleframClient().send_error()
+        print('gotcha')
+        sleep(5000)
         schedule.every(2).hours.do(lp.clear_used_links)
         while True:
             schedule.run_pending()
