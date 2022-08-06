@@ -164,27 +164,29 @@ class LineParser:
                 elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
                     sleep(5)
                     response = requests.get(mod_link, headers=self.headers)
+                    with open('error.html', 'w') as file:
+                        file.write(response.text)
+                    self.tk.send_error()
                     soup = BeautifulSoup(response.text, 'lxml')
                     try:
-                        self.tk.send_text_message('Пошла жара')
-                        timer = ''
-                        try:
-                            timer = soup.find("div", {"id": "scoreboard__time"}).text
-                            print(timer)
-                        except:
-                            print('Не вижу время')
+                        timer = soup.find("div", {"id": "scoreboard__time"}).text
                         left_score = int(soup.find("div", {"id": "scoreboard__score_left"}).text)
                         right_score = int(soup.find("div", {"id": "scoreboard__score_right"}).text)
-                        if left_score + right_score != 0:
-                            self.tk.edit_text_message_for_all(ids, timer, message_text)
-                            self.tk.send_text_message('Edited')
-                            print('Завершаю поток...')
-                            return
-                        else:
-                            print('Пока по нулям')
                     except:
-                        print('Hmmm, something went wrong...')
-                        continue
+                        scores = soup.find_all("div", {"class": "teamScore"})
+                        left_score = int(scores[0].text)
+                        right_score = int(scores[1].text)
+                        timer = soup.find("div", {"class": "time"}).text
+                    msg = f'''{left_score}, {right_score}, {timer}'''
+                    self.tk.send_text_message(msg)
+                    print(left_score, right_score, timer)
+                    if left_score + right_score != 0:
+                        self.tk.edit_text_message_for_all(ids, timer, message_text)
+                        self.tk.send_text_message('Edited')
+                        print('Завершаю поток...')
+                        return
+                    else:
+                        print('Пока по нулям')
             except:
                 self.tk.send_text_message('Главный except')
                 continue
