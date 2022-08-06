@@ -39,6 +39,10 @@ class LineParser:
         self.browser = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
         self.used_links = []
 
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+        }
+
     def clear_used_links(self):
         self.used_links = []
 
@@ -114,8 +118,7 @@ class LineParser:
                     link = item.find_element(By.CLASS_NAME, 'kofsTableLineNums').find_element(By.TAG_NAME, 'a').get_attribute('href')
                     response = self.check_link(link)
                     if response[0] and link not in self.used_links:
-                        cur_hour = (cur_hour + 3) % 24
-                        cur_hour_str = f'{cur_hour}'
+                        cur_hour_str = f'{(cur_hour + 3) % 24}'
                         cur_min_str = f'{cur_min}'
                         if len(str(cur_hour)) == 1:
                             cur_hour_str = f'0{cur_hour}'
@@ -142,10 +145,6 @@ class LineParser:
     def check_stats(self, link, start_min, start_hour, ids, message_text):
         mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
-        }
-
         self.tk.send_text_message(f'''Трекаю матч, его url: {mod_link}''')
         sleep(5)
 
@@ -164,7 +163,7 @@ class LineParser:
                     return
                 elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
                     sleep(5)
-                    response = requests.get(mod_link, headers=headers)
+                    response = requests.get(mod_link, headers=self.headers)
                     soup = BeautifulSoup(response.text, 'lxml')
                     try:
                         self.tk.send_text_message('Пошла жара')
