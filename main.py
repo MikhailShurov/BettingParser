@@ -130,13 +130,13 @@ class LineParser:
                         msg = self.tk.send_text_message_for_all(message)
                         msg.append(message)
                         self.used_links.append(link)
-                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, msg, message))
+                        t1 = Thread(target=LineParser().check_stats, args=(link, cur_min, cur_hour, msg, message))
                         t1.start()
         except Exception as ex:
             # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
 
-    def check_stats(self, link, start_at, ids, message_text):
+    def check_stats(self, link, start_min, start_hour, ids, message_text):
         self.chrome_options.add_argument("--start-maximized")
         self.chrome_options.add_argument("--window-size=1920,1080")
         self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.chrome_options)
@@ -152,21 +152,20 @@ class LineParser:
         while True:
             print('В потоке')
             try:
-                if localtime().tm_min != start_at and not checked:
+                if start_hour * 60 + start_min - localtime().tm_hour * 60 - localtime().tm_min > 0:
                     print('Жду-с')
                     sleep(5)
                     continue
-                elif localtime().tm_min == (start_at + 30) % 60 and checked:
+                elif localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min >= 30:
                     self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
 
 {mod_link}''')
                     print('Вышло время...')
                     return
-                elif int(localtime().tm_min) == int(start_at) or checked:
+                elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
                     sleep(10)
                     self.driver.save_screenshot('lol.png')
                     self.tk.send_screenshots()
-                    checked = True
                     try:
                         print('Пошла жара')
                         try:
