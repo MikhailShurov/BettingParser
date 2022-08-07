@@ -116,8 +116,8 @@ class LineParser:
                         if response[0] and link not in self.used_links:
                             cur_hour_str = f'{(cur_hour + 3) % 24}'
                             cur_min_str = f'{cur_min}'
-                            if len(str(cur_hour)) == 1:
-                                cur_hour_str = f'0{cur_hour}'
+                            if len(str((cur_hour + 3) % 24)) == 1:
+                                cur_hour_str = f'0{(cur_hour + 3) % 24}'
                             if len(str(cur_min)) == 1:
                                 cur_min_str = f'0{cur_min}'
                             message = f'''⚽️Лига: {response[1]}
@@ -132,11 +132,63 @@ class LineParser:
                             msg = self.tk.send_text_message_for_all(message)
                             msg.append(message)
                             self.used_links.append(link)
+                            self.check_stats(link, cur_min, cur_hour, msg, message)
                 except:
                     continue
         except Exception as ex:
             # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
+
+    def check_stats(self, link, start_min, start_hour, ids, message_text):
+        self.browser.execute_script("window.open('');")
+        self.windows = self.browser.window_handles
+        self.browser.switch_to.window(self.windows[-1])
+        mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
+        self.browser.get(mod_link)
+
+        while True:
+            print('В потоке')
+            try:
+                if start_hour * 60 + start_min - localtime().tm_hour * 60 - localtime().tm_min > 0:
+                    print('Жду-с')
+                    sleep(5)
+                    continue
+                elif localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min >= 30:
+                    self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
+
+{mod_link}''')
+                    print('Вышло время...')
+                    break
+                elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
+                    sleep(5)
+                    try:
+                        print('Пошла жара')
+                        try:
+                            timer = self.browser.find_element(By.ID, 'scoreboard__time').text
+                            print(timer)
+                            left_score = int(self.browser.find_element(By.ID, 'scoreboard__score_left').text)
+                            right_score = int(self.browser.find_element(By.ID, 'scoreboard__score_right').text)
+                        except:
+                            timer = self.browser.find_element(By.CLASS_NAME, 'time').text
+                            print(timer, 'except')
+                            scores = self.browser.find_elements(By.CLASS_NAME, 'teamScore')
+                            left_score = int(scores[0].text)
+                            right_score = int(scores[1].text)
+                        if left_score + right_score != 0:
+                            self.tk.edit_text_message_for_all(ids, timer, message_text)
+                            self.tk.send_text_message('Edited')
+                            break
+                        else:
+                            print('Пока по нулям')
+                    except:
+                        print('Hmmm, something went wrong...')
+                        continue
+            except:
+                self.tk.send_text_message('Главный except')
+                continue
+        self.browser.close()
+        self.windows = self.browser.window_handles
+        self.browser.switch_to.window(self.windows[-1])
 
 
 if __name__ == '__main__':
