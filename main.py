@@ -207,8 +207,8 @@ if __name__ == '__main__':
         file.write(response.text)
     TelegramClient.TeleframClient().send_error()
 
-    soup = BeautifulSoup(response.content, 'html.parser')
-    msg = soup.find("div", {"id": "scoreboard__score_right"}).text
+    soup = BeautifulSoup(response.content, 'lxml')
+    msg = soup.find("div", {"id": "scoreboard__score_right"}).get_text()
     TelegramClient.TeleframClient().send_text_message(msg)
     print('ready')
     sleep(50)
