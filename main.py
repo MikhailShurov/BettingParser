@@ -135,7 +135,7 @@ class LineParser:
                             msg = self.tk.send_text_message_for_all(message)
                             msg.append(message)
                             self.used_links.append(link)
-                            self.check_stats(link, cur_min, cur_hour, msg, message)
+                            # self.check_stats(link, cur_min, cur_hour, msg, message)
                 except:
                     continue
         except Exception as ex:
@@ -195,24 +195,6 @@ class LineParser:
 
 
 if __name__ == '__main__':
-
-    headers = {
-        "Cookie": "SESSION=66e05adcbc32c62291caf2569e6531b1; lng=ru; auid=F2nvfGLiv0em05QCMXiHAg==; _ga=GA1.1.352226497.1659027273; tzo=3; sh.session=abb29fc3-7fe3-454f-bb7f-a614b23a6b42; geocountry=ca; _ga_X2B11TMFNG=GS1.1.1659861043.39.0.1659861043.0",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
-        "Referer": "https://melbet.ru/live/football/1955054-australia-npl-queensland/140662039-brisbane-olympic-queensland-lions/"
-    }
-    session = HTMLSession()
-    response = session.get('https://melbet.ru/live/football/1955054-australia-npl-queensland/140662039-brisbane-olympic-queensland-lions/', headers=headers)
-    with open('error.html', 'w') as file:
-        file.write(response.text)
-    TelegramClient.TeleframClient().send_error()
-
-    soup = BeautifulSoup(response.content, 'lxml')
-    msg = soup.find("div", {"id": "scoreboard__score_right"}).get_text()
-    TelegramClient.TeleframClient().send_text_message(msg)
-    print('ready')
-    sleep(50)
-
     try:
         lp = LineParser()
         schedule.every(2).hours.do(lp.clear_used_links)
