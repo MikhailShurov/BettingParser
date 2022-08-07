@@ -9,7 +9,7 @@ from time import localtime
 import TelegramClient
 
 from bs4 import BeautifulSoup
-import requests
+from requests_html import HTMLSession
 
 import schedule
 
@@ -201,13 +201,13 @@ if __name__ == '__main__':
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
         "Referer": "https://melbet.ru/live/football/1955054-australia-npl-queensland/140662039-brisbane-olympic-queensland-lions/"
     }
-
-    response = requests.get('https://melbet.ru/live/football/1955054-australia-npl-queensland/140662039-brisbane-olympic-queensland-lions/', headers=headers)
+    session = HTMLSession()
+    response = session.get('https://melbet.ru/live/football/1955054-australia-npl-queensland/140662039-brisbane-olympic-queensland-lions/', headers=headers)
     with open('error.html', 'w') as file:
         file.write(response.text)
     TelegramClient.TeleframClient().send_error()
 
-    soup = BeautifulSoup(response.text, 'lxml')
+    soup = BeautifulSoup(response.content, 'html.parser')
     msg = soup.find("div", {"id": "scoreboard__score_right"}).text
     TelegramClient.TeleframClient().send_text_message(msg)
     print('ready')
