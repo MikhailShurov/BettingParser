@@ -1,4 +1,5 @@
 import telebot
+import requests
 
 
 class TeleframClient:
@@ -30,3 +31,7 @@ class TeleframClient:
         add = f'\n\n✅✅✅ {goal_time}'
         for pair in message:
             self.bot.edit_message_text(chat_id=pair[0], message_id=pair[1], text=message_text + add)
+
+    def send_message_to_chanel(self, message):
+        method = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id=-1001732681694&text={message}"
+        requests.post(method)

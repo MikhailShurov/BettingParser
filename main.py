@@ -132,9 +132,10 @@ class LineParser:
 ⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
         
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                            msg = self.tk.send_text_message_for_all(message)
-                            msg.append(message)
+                            msg = self.tk.send_text_message(message)
                             self.used_links.append(link)
+                            self.tk.send_message_to_chanel(message)
+                            # msg.append(message)
                             # self.check_stats(link, cur_min, cur_hour, msg, message)
                 except:
                     continue
