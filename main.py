@@ -1,6 +1,6 @@
 import json
-
 import requests
+
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -11,13 +11,14 @@ from time import localtime
 
 import TelegramClient
 
-from bs4 import BeautifulSoup
-from requests_html import HTMLSession
+from threading import *
 
 import schedule
 
 from rich.console import Console
 from rich.traceback import install
+
+from math import floor
 
 install()
 console = Console(record=True)
@@ -41,6 +42,7 @@ class LineParser:
         self.used_links = []
 
         self.headers = {
+            "Cookie": "SESSION=66e05adcbc32c62291caf2569e6531b1; lng=ru; auid=F2nvfGLiv0em05QCMXiHAg==; _ga=GA1.1.352226497.1659027273; tzo=3; sh.session=abb29fc3-7fe3-454f-bb7f-a614b23a6b42; geocountry=ca; _ga_X2B11TMFNG=GS1.1.1659951299.42.1.1659951390.0",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
         }
 
@@ -135,78 +137,56 @@ class LineParser:
 ⏰Начало матча: {cur_hour_str}:{cur_min_str} (МСК)
         
 💰Прогноз: гол до 30 минуты или ТБ 0.5 в первом тайме'''
-                            msg = self.tk.send_text_message(message)
                             self.used_links.append(link)
-                            self.tk.send_message_to_chanel(message)
-                            # msg.append(message)
-                            # self.check_stats(link, cur_min, cur_hour, msg, message)
+
+                            chat_message_id = self.tk.send_text_message(message)
+                            chanel_message_id = self.tk.send_message_to_chanel(message)
+
+                            t1 = Thread(target=self.check_stats, args=(link, chat_message_id, chanel_message_id, message, localtime().tm_hour))
+                            t1.start()
                 except:
                     continue
         except Exception as ex:
             # Улетает в except тк не во всех матчах есть вкладка "Интервалы"
             print(ex)
 
-    def check_stats(self, link, start_min, start_hour, ids, message_text):
-        self.browser.execute_script("window.open('');")
-        self.windows = self.browser.window_handles
-        self.browser.switch_to.window(self.windows[-1])
-        mod_link = f'{link[:link.index("line")]}live{link[link.index("line") + 4:]}'
-        self.browser.get(mod_link)
+    def check_stats(self, link, chat_id, chanel_id, message_text, start):
+
+        link = link[:-1]
+        track_id = int(link[link.rfind('/')+1:link.index('-', link.rfind('/')+1)])
 
         while True:
-            print('В потоке')
+            sleep(3)
+            if start + 2 == localtime().tm_hour:
+                break
             try:
-                if start_hour * 60 + start_min - localtime().tm_hour * 60 - localtime().tm_min > 0:
-                    print('Жду-с')
-                    sleep(5)
-                    continue
-                elif localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min >= 30:
-                    self.tk.send_text_message(f'''Закончил трекать этот матч, выхожу
-
-{mod_link}''')
+                response = requests.get(f'https://melbet.ru/LiveFeed/GetGameZip?id={track_id}&partner=195')
+                response = json.loads(response.text)
+                timer = int(response["Value"]["SC"]["TS"])
+                if timer >= 1800:
                     print('Вышло время...')
+                    add = '\n\n❌❌❌❌❌'
+                    self.tk.edit_message_in_chat_with(chat_id, message_text, add)
+                    self.tk.edit_message_in_chanel_with(chanel_id, message_text, add)
                     break
-                elif 0 <= localtime().tm_hour * 60 + localtime().tm_min - start_hour * 60 - start_min <= 30:
-                    sleep(5)
+                elif timer <= 1800:
+                    print('проверяю гол')
                     try:
-                        print('Пошла жара')
-                        try:
-                            timer = self.browser.find_element(By.ID, 'scoreboard__time').text
-                            print(timer)
-                            left_score = int(self.browser.find_element(By.ID, 'scoreboard__score_left').text)
-                            right_score = int(self.browser.find_element(By.ID, 'scoreboard__score_right').text)
-                        except:
-                            timer = self.browser.find_element(By.CLASS_NAME, 'time').text
-                            print(timer, 'except')
-                            scores = self.browser.find_elements(By.CLASS_NAME, 'teamScore')
-                            left_score = int(scores[0].text)
-                            right_score = int(scores[1].text)
-                        if left_score + right_score != 0:
-                            self.tk.edit_text_message_for_all(ids, timer, message_text)
-                            self.tk.send_text_message('Edited')
+                        if len(response["Value"]["SC"]["PS"][0]["Value"]) != 0:
+                            add = f'\n\n✅✅✅✅✅ {floor(timer/60)}-я минута'
+                            self.tk.edit_message_in_chat_with(chat_id, message_text, add)
+                            self.tk.edit_message_in_chanel_with(chanel_id, message_text, add)
                             break
-                        else:
-                            print('Пока по нулям')
                     except:
                         print('Hmmm, something went wrong...')
                         continue
             except:
-                self.tk.send_text_message('Главный except')
+                print('Всё хорошо')
+                sleep(10)
                 continue
-        self.browser.close()
-        self.windows = self.browser.window_handles
-        self.browser.switch_to.window(self.windows[-1])
 
 
 if __name__ == '__main__':
-    headers = {
-        "Cookie": "SESSION=66e05adcbc32c62291caf2569e6531b1; lng=ru; auid=F2nvfGLiv0em05QCMXiHAg==; _ga=GA1.1.352226497.1659027273; tzo=3; sh.session=abb29fc3-7fe3-454f-bb7f-a614b23a6b42; geocountry=ca; _ga_X2B11TMFNG=GS1.1.1659951299.42.1.1659951390.0",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
-    }
-    response = requests.get('https://melbet.ru/LiveFeed/GetGameZip?id=390710643&partner=195')
-    response = json.loads(response.text)
-    print(response["Value"]["SC"]["PS"][0]["Value"])
-    sleep(500)
     try:
         lp = LineParser()
         schedule.every(2).hours.do(lp.clear_used_links)
@@ -219,5 +199,4 @@ if __name__ == '__main__':
             print('**************************************************')
             sleep(6)
     except:
-        console.save_html("error.html")
-        TelegramClient.TeleframClient().send_error()
+        print('jj')
