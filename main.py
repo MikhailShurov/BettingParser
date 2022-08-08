@@ -1,3 +1,6 @@
+import json
+
+import requests
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
@@ -196,6 +199,14 @@ class LineParser:
 
 
 if __name__ == '__main__':
+    headers = {
+        "Cookie": "SESSION=66e05adcbc32c62291caf2569e6531b1; lng=ru; auid=F2nvfGLiv0em05QCMXiHAg==; _ga=GA1.1.352226497.1659027273; tzo=3; sh.session=abb29fc3-7fe3-454f-bb7f-a614b23a6b42; geocountry=ca; _ga_X2B11TMFNG=GS1.1.1659951299.42.1.1659951390.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+    }
+    response = requests.get('https://melbet.ru/LiveFeed/GetGameZip?id=390710643&partner=195')
+    response = json.loads(response.text)
+    print(response["Value"]["SC"]["PS"][0]["Value"])
+    sleep(500)
     try:
         lp = LineParser()
         schedule.every(2).hours.do(lp.clear_used_links)
