@@ -28,6 +28,7 @@ class LineParser:
         self.used_ids = []
 
     def check_id(self, match_id):
+        print(match_id)
         response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
         response = json.loads(response.text)
 
