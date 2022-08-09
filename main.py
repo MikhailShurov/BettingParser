@@ -12,6 +12,11 @@ from threading import *
 import schedule
 
 from math import floor
+from rich.console import Console
+from rich.traceback import install
+
+install()
+console = Console(record=True)
 
 
 class LineParser:
@@ -114,13 +119,11 @@ class LineParser:
 
 
 if __name__ == '__main__':
-    try:
-        lp = LineParser()
-        schedule.every(2).hours.do(lp.clear_used_ids)
-        while True:
-            schedule.run_pending()
-            lp.infinity_parsing()
-            print('**************************************************')
-            sleep(6)
-    except:
-        print('jj')
+    lp = LineParser()
+    schedule.every(2).hours.do(lp.clear_used_ids)
+    while True:
+        schedule.run_pending()
+        lp.infinity_parsing()
+        print('**************************************************')
+        sleep(6)
+
