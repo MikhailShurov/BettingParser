@@ -31,7 +31,6 @@ class LineParser:
         try:
             response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
             response = json.loads(response.text)
-            print('norm')
             for item in range(len(response["Value"]["E"])):
                 try:
                     if response["Value"]["E"][item]["G"] == 309:
@@ -44,10 +43,9 @@ class LineParser:
                             return False
                 except:
                     continue
-
             return False
         except:
-            print('nenorm')
+            print('checking id failed')
             return False
 
     def infinity_parsing(self):
