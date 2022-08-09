@@ -37,6 +37,7 @@ class LineParser:
                     if response["Value"]["E"][item]["G"] == 309:
                         total15 = float(response["Value"]["E"][item]["C"])
                         total30 = float(response["Value"]["E"][item+1]["C"])
+                        print(total15, total30)
                         if 2.0 <= total15 <= 2.6 and 1.4 <= total30 <= 1.55:
                             return True
                         else:
