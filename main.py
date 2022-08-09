@@ -29,7 +29,6 @@ class LineParser:
 
     def check_id(self, match_id):
         try:
-            print(match_id)
             response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
             response = json.loads(response.text)
 
@@ -53,11 +52,13 @@ class LineParser:
 
         response = requests.get('https://melbet.ru/LineFeed/Get1x2_VZip?sports=1&count=200&tf=60&mode=4&cyberFlag=4&partner=195')
         response = json.loads(response.text)
+        ids = []
 
         for item in range(len(response["Value"])):
             unix_time = int(response["Value"][item]["S"])
             if 480 <= abs(unix_time - int(tm.time())) <= 660:
                 match_id = int(response["Value"][item]["LI"])
+                ids.append(match_id)
                 if self.check_id(match_id) and match_id not in self.used_ids:
                     time_hour = int(localtime(int(unix_time)).tm_hour)
                     time_hour = (time_hour + 3) % 24
@@ -88,6 +89,7 @@ class LineParser:
                     continue
             else:
                 print(f'Ждать {int((unix_time - tm.time())/60)} минут')
+        print(ids)
 
     def check_stats(self, track_id, chat_id, chanel_id, message_text, start):
 
