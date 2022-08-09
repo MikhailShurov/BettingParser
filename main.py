@@ -27,7 +27,8 @@ class LineParser:
     def clear_used_ids(self):
         self.used_ids = []
 
-    def check_id(self, match_id):
+    @staticmethod
+    def check_id(match_id):
         try:
             response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
             response = json.loads(response.text)
@@ -109,7 +110,7 @@ class LineParser:
                     print('проверяю гол')
                     try:
                         if len(response["Value"]["SC"]["PS"][0]["Value"]) != 0:
-                            add = f'\n\n✅✅✅✅✅ {floor(timer/60)}-я минута'
+                            add = f'\n\n✅✅✅✅✅ {floor(timer/60)+1}-я минута'
                             self.tk.edit_message_in_chat_with(chat_id, message_text, add)
                             self.tk.edit_message_in_chanel_with(chanel_id, message_text, add)
                             break
@@ -130,4 +131,3 @@ if __name__ == '__main__':
         lp.infinity_parsing()
         print('**************************************************')
         sleep(6)
-
