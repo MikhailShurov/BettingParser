@@ -91,7 +91,7 @@ class LineParser:
                 response = json.loads(response.text)
                 timer = int(response["Value"]["SC"]["TS"])
                 if timer >= 1800:
-                    print('Вышло время...')
+                    print('Время вышло...')
                     add = '\n\n❌❌❌❌❌'
                     self.tk.edit_message_in_chat_with(chat_id, message_text, add)
                     self.tk.edit_message_in_chanel_with(chanel_id, message_text, add)
