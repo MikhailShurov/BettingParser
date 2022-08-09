@@ -28,23 +28,26 @@ class LineParser:
         self.used_ids = []
 
     def check_id(self, match_id):
-        print(match_id)
-        response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
-        response = json.loads(response.text)
+        try:
+            print(match_id)
+            response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
+            response = json.loads(response.text)
 
-        for item in range(len(response["Value"]["E"])):
-            try:
-                if response["Value"]["E"][item]["G"] == 309:
-                    total15 = float(response["Value"]["E"][item]["C"])
-                    total30 = float(response["Value"]["E"][item+1]["C"])
-                    if 2.0 <= total15 <= 2.6 and 1.4 <= total30 <= 1.55:
-                        return True
-                    else:
-                        return False
-            except:
-                continue
+            for item in range(len(response["Value"]["E"])):
+                try:
+                    if response["Value"]["E"][item]["G"] == 309:
+                        total15 = float(response["Value"]["E"][item]["C"])
+                        total30 = float(response["Value"]["E"][item+1]["C"])
+                        if 2.0 <= total15 <= 2.6 and 1.4 <= total30 <= 1.55:
+                            return True
+                        else:
+                            return False
+                except:
+                    continue
 
-        return False
+            return False
+        except:
+            return False
 
     def infinity_parsing(self):
 
@@ -84,7 +87,7 @@ class LineParser:
                 else:
                     continue
             else:
-                print(f'Ждать {(tm.time() - unix_time)/60} минут')
+                print(f'Ждать {int((unix_time - tm.time())/60)} минут')
 
     def check_stats(self, track_id, chat_id, chanel_id, message_text, start):
 
