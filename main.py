@@ -31,7 +31,7 @@ class LineParser:
         try:
             response = requests.get(f'https://melbet.ru/LineFeed/GetGameZip?id={match_id}&partner=195')
             response = json.loads(response.text)
-
+            print('norm')
             for item in range(len(response["Value"]["E"])):
                 try:
                     if response["Value"]["E"][item]["G"] == 309:
@@ -47,6 +47,7 @@ class LineParser:
 
             return False
         except:
+            print('nenorm')
             return False
 
     def infinity_parsing(self):
@@ -57,7 +58,7 @@ class LineParser:
         for item in range(len(response["Value"])):
             unix_time = int(response["Value"][item]["S"])
             if 480 <= abs(unix_time - int(tm.time())) <= 660:
-                match_id = int(response["Value"][item]["LI"])
+                match_id = int(response["Value"][item]["CI"])
                 print([match_id, unix_time, response["Value"][item]["L"], response["Value"][item]["O1"], response["Value"][item]["O2"]])
                 if self.check_id(match_id) and match_id not in self.used_ids:
                     time_hour = int(localtime(int(unix_time)).tm_hour)
