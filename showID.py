@@ -29,7 +29,12 @@
 #     sleep(3)
 
 
-a = 'https://melbet.ru/live/football/28899-india-calcutta-premier-division/390710643-railway-calcutta-customs/'
-a = a[:-1]
-id = a[a.rfind('/')+1:a.index('-', a.rfind('/')+1)]
-print(id)
+# a = 'https://melbet.ru/live/football/28899-india-calcutta-premier-division/390710643-railway-calcutta-customs/'
+# a = a[:-1]
+# id = a[a.rfind('/')+1:a.index('-', a.rfind('/')+1)]
+# print(id)
+
+# import time
+# print(time.localtime(int("1660032000")).tm_hour, time.localtime(int("1660032000")).tm_min)
+
+print(abs(-1))
