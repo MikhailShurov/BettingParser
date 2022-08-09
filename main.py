@@ -50,7 +50,7 @@ class LineParser:
         response = requests.get('https://melbet.ru/LineFeed/Get1x2_VZip?sports=1&count=200&tf=60&mode=4&cyberFlag=4&partner=195')
         response = json.loads(response.text)
 
-        for item in response["Value"]:
+        for item in range(len(response["Value"])):
             unix_time = int(response["Value"][item]["S"])
             if 480 <= abs(unix_time - int(tm.time())) <= 660:
                 match_id = int(response["Value"][item]["LI"])
